@@ -33,15 +33,15 @@ module.exports = {
             db().end();
         })
     },
-    deleteCatalog: function(param) {
+    deleteCatalog: function (param) {
         return new Promise((resolve, reject) => {
             let db = require("./commonDB")
             let sql = "delete from lau_catalog_info where catalogid in(?)"
             db().query(sql, [param], (error, result) => {
-                if(error){
+                if (error) {
                     console.log("删除操作失败！失败原因：", error)
                     reject(error)
-                }else{
+                } else {
                     resolve(result)
                 }
             })

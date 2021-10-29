@@ -5,7 +5,6 @@ module.exports = {
      * @param  res response
      */
     queryCatalogList: function (res) {
-        console.log("开始查询目录列表！");
         let catalogDao = require("../dao/CatalogDao");
         catalogDao.queryCatalogList().then(value => {
             let result = value.filter(item => {
@@ -20,14 +19,13 @@ module.exports = {
         });
     },
     /**
-     * 新增目录列表
+     * 新增分类
      * 
      * @param {*} req 
      * @param {*} res 
      */
     addCatalog: function (req, res) {
-        console.log("插入新目录...");
-        console.log("请求参数：", req.body);
+        console.log("新增分类...", req.body);
         let catalogDao = require("../dao/CatalogDao");
         catalogDao.addCatalog(req.body).then(value => {
             res.send(value);
@@ -36,13 +34,13 @@ module.exports = {
         })
     },
     /**
-     * 删除目录节点
+     * 删除分类节点（其下的子节点也会被删除）
      * 
      * @param {*} req 
      * @param {*} res 
      */
     deleteCatalogById: function (req, res) {
-        console.log("删除节点:", req.body);
+        console.log("删除分类:", req.body);
         // 1.先获取所有节点信息
         let catalogDao = require("../dao/CatalogDao");
         catalogDao.queryCatalogList().then(values => {
@@ -54,7 +52,7 @@ module.exports = {
                 return item.catalogid === delCatalogId
             })
             if (catalogs.length <= 0) {
-                res.send("未在数据库中找到对应的节点！删除失败！")
+                res.send("未在数据库中找到对应的分类节点！删除失败！")
                 return;
             }
             // 2.获取该节点下所有的子节点id
