@@ -1,3 +1,4 @@
+const timeUtil = require("../utils/timeUtil");
 module.exports = {
     newArticleInfo: function (param) {
         return new Promise((resolve, reject) => {
@@ -23,10 +24,10 @@ module.exports = {
             let value = [];
             // 判断是否有分类id的查询条件
             if (param.catalogid) {
-                sql = "select * from lau_article_info where catalogid=? order by createdate limit ? offset ?";
+                sql = "select id, title, author, createdate, summary, catalogid from lau_article_info where catalogid=? order by createdate limit ? offset ?";
                 value = [param.catalogid, param.limit, param.offset];
             } else {
-                sql = "select * from lau_article_info order by createdate limit ? offset ?";
+                sql = "select id, title, author, createdate, summary, catalogid from lau_article_info order by createdate limit ? offset ?";
                 value = [param.limit, param.offset];
             }
             db.query(sql, value, (error, result) => {
@@ -34,8 +35,32 @@ module.exports = {
                     reject(error);
                     return;
                 }
+                result.map(item => {
+                    // 转换一下时间格式
+                    item.createdate = timeUtil.simpleDateFormate(item.createdate.getTime())
+                })
                 resolve(result)
             })
+            db.end();
+        })
+    },
+
+    queryArticleById: function(param) {
+        return new Promise((resolve, reject) => {
+            const db = require("./commonDB")();
+            let sql = "select * from lau_article_info where id = ?"
+            let value = [param];
+            db.query(sql, value, (error, result) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                result.map(item => {
+                    // 转换一下时间格式
+                    item.createdate = timeUtil.simpleDateFormate(item.createdate.getTime())
+                })
+                resolve(result)
+            });
             db.end();
         })
     },

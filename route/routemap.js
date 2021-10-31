@@ -42,6 +42,11 @@ module.exports = function(app){
         articleController.updateArticleContent(req, res);
     });
 
+    // 根据id查询文章
+    app.get('/getArticleDetail', (req, res) => {
+        articleController.queryArticleDetailById(req, res);
+    })
+
     // 上传图片
     app.post('/uploadImg', (req, res) => {
         fileController.uploadImg(req, res);
