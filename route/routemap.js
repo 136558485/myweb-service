@@ -19,7 +19,8 @@ module.exports = function(app){
 
     // 删除分类
     app.post('/deleteCatalog', (req, res) => {
-        catalogController.deleteCatalogById(req, res);
+        res.send({code:1, errmsg:"删除功能已被管理员关闭！"})
+        // catalogController.deleteCatalogById(req, res);
     });
 
     // 查询文章

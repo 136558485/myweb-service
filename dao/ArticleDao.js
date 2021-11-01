@@ -24,10 +24,10 @@ module.exports = {
             let value = [];
             // 判断是否有分类id的查询条件
             if (param.catalogid) {
-                sql = "select id, title, author, createdate, summary, catalogid from lau_article_info where catalogid=? order by createdate limit ? offset ?";
+                sql = "select id, title, author, createdate, summary, catalogid from lau_article_info where catalogid=? order by createdate desc limit ? offset ?";
                 value = [param.catalogid, param.limit, param.offset];
             } else {
-                sql = "select id, title, author, createdate, summary, catalogid from lau_article_info order by createdate limit ? offset ?";
+                sql = "select id, title, author, createdate, summary, catalogid from lau_article_info order by createdate desc limit ? offset ?";
                 value = [param.limit, param.offset];
             }
             db.query(sql, value, (error, result) => {
