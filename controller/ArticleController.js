@@ -60,8 +60,23 @@ module.exports = {
      */
     deleteArticle: function(req, res) {
         console.log("删除文章：", req.query.id)
-        articleDao.deleteArticle(req.query.id).then(result => {
-            res.send(result);
+        
+        articleDao.queryArticleById(req.query.id).then(result => {
+            // 判断文章是否存在
+            if(result.length <= 0) {
+                res.send(constructErrorRes("未找到对应的文章，情检查传入id"));
+                return;
+            }
+            // 判断文章是否被锁定
+            if(result[0].islock === 1) {
+                res.send(constructErrorRes("该文章已被作者锁定，无法进行当前操作！"));
+                return;
+            }
+            articleDao.deleteArticle(req.query.id).then(result => {
+                res.send(result);
+            }).catch(error => {
+                res.send(error);
+            })
         }).catch(error => {
             res.send(error);
         })
@@ -74,8 +89,22 @@ module.exports = {
      * @param {*} res 
      */
     updateArticleContent: function(req, res) {
-        articleDao.updateArticleContent(req.body).then(result => {
-            res.send(result);
+        articleDao.queryArticleById(req.body.id).then(result => {
+            // 判断文章是否存在
+            if(result.length <= 0) {
+                res.send(constructErrorRes("未找到对应的文章，情检查传入id"));
+                return;
+            }
+            // 判断文章是否被锁定
+            if(result[0].islock === 1) {
+                res.send(constructErrorRes("该文章已被作者锁定，无法进行当前操作！"));
+                return;
+            }
+            articleDao.updateArticleContent(req.body).then(result => {
+                res.send(result);
+            }).catch(error => {
+                res.send(error);
+            })
         }).catch(error => {
             res.send(error);
         })
@@ -131,4 +160,11 @@ function validateQueryParam(param, res) {
         return true;
     }
     return false;
+}
+
+function constructErrorRes(msg) {
+    let resp = {};
+    resp.code = 1;
+    resp.errmsg = msg;
+    return resp; 
 }
