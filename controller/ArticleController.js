@@ -1,5 +1,9 @@
 const articleDao = require("../dao/ArticleDao");
 const validateUtil = require("../utils/validateUtil")
+// 锁定状态
+const LOCK_STATE = 1; 
+// 未锁定状态
+const UNLOCK_STATE = 0;
 module.exports = {
     /**
      * 查询文章
@@ -75,9 +79,11 @@ module.exports = {
             articleDao.deleteArticle(req.query.id).then(result => {
                 res.send(result);
             }).catch(error => {
+                res.status(500);
                 res.send(error);
             })
         }).catch(error => {
+            res.status(500);
             res.send(error);
         })
     },
@@ -103,11 +109,90 @@ module.exports = {
             articleDao.updateArticleContent(req.body).then(result => {
                 res.send(result);
             }).catch(error => {
+                res.status(500);
                 res.send(error);
             })
         }).catch(error => {
+            res.status(500);
             res.send(error);
         })
+    },
+
+    /**
+     * 锁定文章
+     * 
+     * @param {*} req 
+     * @param {*} res 
+     */
+    articleLock: function(req, res) {
+        articleDao.queryArticleById(req.body.id).then((result) => {
+            // 判断文章是否存在
+            if(result.length <= 0) {
+                res.send(constructErrorRes("未找到对应的文章，情检查传入id"));
+                return;
+            }
+            // 判断文章是否已被锁定
+            if(result[0].islock === LOCK_STATE) {
+                res.send("已锁定");
+                return;
+            }
+
+            let param = {
+                "lockstate": LOCK_STATE,
+                "id": req.body.id,
+                "lockpwd": req.body.pwd
+            }
+            articleDao.articleLock(param).then(result => {
+                res.send(result);
+            }).catch(error => {
+                res.status(500);
+                res.send(error);
+            });
+        }).catch(error => {
+            res.status(500);
+            res.send(error);
+        });
+    },
+
+    /**
+     * 解锁文章
+     * 
+     * @param {*} req 
+     * @param {*} res 
+     */
+    articleUnLock: function(req, res) {
+        articleDao.queryArticleById(req.body.id).then((result) => {
+            // 判断文章是否存在
+            if(result.length <= 0) {
+                res.send(constructErrorRes("未找到对应的文章，情检查传入id"));
+                return;
+            }
+            // 判断文章是否已被锁定
+            if(result[0].islock === UNLOCK_STATE) {
+                res.send("已解锁");
+                return;
+            }
+
+            // 校验密码
+            if(result[0].lockpwd !== req.body.pwd) {
+                res.send(constructErrorRes("密码不对，请检查"));
+                return;
+            }
+
+            let param = {
+                "lockstate": UNLOCK_STATE,
+                "id": req.body.id
+            }
+            articleDao.articleLock(param).then(result => {
+                res.send(result);
+            }).catch(error => {
+                res.status(500);
+                res.send(error);
+            });
+        }).catch(error => {
+            res.status(500);
+            res.send(error);
+        });
     }
 }
 

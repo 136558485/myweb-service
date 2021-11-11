@@ -1,6 +1,7 @@
 const catalogController = require("../controller/CatalogController");
 const articleController = require("../controller/ArticleController")
-const fileController = require("../controller/FileController")
+const fileController = require("../controller/FileController");
+const ArticleController = require("../controller/ArticleController");
 module.exports = function(app){
     app.get('/', (res) => {
         res.send('welcome to the nodejs!');
@@ -48,8 +49,20 @@ module.exports = function(app){
         articleController.queryArticleDetailById(req, res);
     })
 
+    // 文章上锁
+    app.put('/article/lock', (req, res) => {
+        ArticleController.articleLock(req, res);
+    })
+
+    // 文章解锁
+    app.put('/article/unlock', (req, res) => {
+        ArticleController.articleUnLock(req, res);
+    })
+
     // 上传图片
     app.post('/uploadImg', (req, res) => {
         fileController.uploadImg(req, res);
     })
+
+    
 }
